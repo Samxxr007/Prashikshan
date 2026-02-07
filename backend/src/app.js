@@ -25,6 +25,37 @@ app.use("/api/recommend", recommendRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/ai", aiRoutes);
 
+// Temporary seeding route
+app.get("/api/seed", async (req, res) => {
+    try {
+        const { fileURLToPath } = await import("url");
+        const path = await import("path");
+        const { fork } = await import("child_process");
+
+        const __filename = fileURLToPath(import.meta.url);
+        const __dirname = path.dirname(__filename);
+        const seedPath = path.join(__dirname, "seed.js");
+
+        // Run seed.js in a separate process
+        const child = fork(seedPath);
+
+        child.on('close', (code) => {
+            if (code === 0) {
+                res.json({ msg: "Seeding completed successfully" });
+            } else {
+                res.status(500).json({ error: `Seeding failed with code ${code}` });
+            }
+        });
+
+        child.on('error', (err) => {
+            res.status(500).json({ error: `Seeding process error: ${err.message}` });
+        });
+
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // default route
 app.get("/", (req, res) => res.send("API Running"));
 

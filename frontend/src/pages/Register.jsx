@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import API from "../api";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function Register() {
@@ -19,7 +19,7 @@ export default function Register() {
     setMsg("");
 
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/register", {
+      const res = await API.post("/auth/register", {
         name,
         email,
         password,
@@ -78,8 +78,8 @@ export default function Register() {
                 key={r}
                 onClick={() => setRole(r)}
                 className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 capitalize flex items-center justify-center gap-2 ${role === r
-                    ? `bg-slate-800 text-white shadow-xl border border-slate-700/50`
-                    : "text-slate-500 hover:text-slate-300"
+                  ? `bg-slate-800 text-white shadow-xl border border-slate-700/50`
+                  : "text-slate-500 hover:text-slate-300"
                   }`}
                 aria-pressed={role === r}
               >
