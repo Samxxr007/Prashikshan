@@ -1,6 +1,28 @@
 import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import API from "../api";
 
 export default function IndustryDashboard() {
+  const [stats, setStats] = useState({
+    totalProjects: 0,
+    totalApplicants: 124 // Default placeholder as per requirement or fetched
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await API.get("/industry/profile/stats");
+        setStats(res.data);
+      } catch (err) {
+        console.error("Failed to fetch industry stats", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
+
   const cards = [
     {
       title: "Post Projects",
@@ -80,14 +102,14 @@ export default function IndustryDashboard() {
         <div className="p-8 rounded-3xl bg-slate-900/40 border border-slate-800/50 flex items-center justify-between">
           <div>
             <h4 className="text-lg font-bold">Total Applicants</h4>
-            <p className="text-3xl font-black mt-1 text-emerald-400">124</p>
+            <p className="text-3xl font-black mt-1 text-emerald-400">{stats.totalApplicants}</p>
           </div>
           <div className="text-4xl opacity-20">📈</div>
         </div>
         <div className="p-8 rounded-3xl bg-slate-900/40 border border-slate-800/50 flex items-center justify-between">
           <div>
             <h4 className="text-lg font-bold">Active Projects</h4>
-            <p className="text-3xl font-black mt-1 text-blue-400">8</p>
+            <p className="text-3xl font-black mt-1 text-blue-400">{loading ? "..." : stats.totalProjects}</p>
           </div>
           <div className="text-4xl opacity-20">📁</div>
         </div>
