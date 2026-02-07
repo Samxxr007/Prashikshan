@@ -5,6 +5,7 @@ import { users, studentProfiles, industryProfiles } from "../firebase.js";
 export const register = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
+    // Removed checkDbReady call to prevent production crashes
 
     const check = await users.doc(email).get();
     if (check.exists) return res.status(400).json({ msg: "User exists" });
@@ -54,13 +55,24 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    // Removed checkDbReady call to prevent production crashes
 
     const snap = await users.doc(email).get();
     if (!snap.exists) return res.status(400).json({ msg: "No user" });
 
     const user = snap.data();
+    if (!user.password) {
+      console.error("Login Error: User document missing password field for", email);
+      return res.status(500).json({ error: "User account corrupted (missing password)" });
+    }
+
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(400).json({ msg: "Wrong pass" });
+
+    if (!process.env.JWT_SECRET) {
+      console.error("Login Error: JWT_SECRET environment variable is not defined");
+      return res.status(500).json({ error: "Server configuration error (missing secret)" });
+    }
 
     const token = jwt.sign(
       { email: user.email, role: user.role },
@@ -70,6 +82,7 @@ export const login = async (req, res) => {
 
     res.json({ token, role: user.role });
   } catch (err) {
+    console.error("Login Internal Error:", err);
     res.status(500).json({ error: err.message });
   }
 };

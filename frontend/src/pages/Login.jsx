@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import API from "../api";
 import { useNavigate, Link } from "react-router-dom";
 
 export default function Login() {
@@ -25,7 +25,7 @@ export default function Login() {
         return;
       }
 
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
+      const res = await API.post("/auth/login", {
         email,
         password,
       });
@@ -42,7 +42,30 @@ export default function Login() {
       else if (res.data.role === "admin") navigate("/admin");
 
     } catch (err) {
-      setError(err.message || "Invalid Credentials ❌");
+      console.error("Login Error Details:", {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status,
+        headers: err.response?.headers
+      });
+
+      let errorMessage = "Invalid Credentials ❌";
+
+      if (err.response) {
+        // Server responded with a status code usually 4xx or 5xx
+        errorMessage = err.response.data?.msg || err.response.data?.error || `Server Error: ${err.response.status}`;
+        if (err.response.status >= 500) {
+          errorMessage = "Server experienced an internal error. Please try again later.";
+        }
+      } else if (err.request) {
+        // The request was made but no response was received
+        errorMessage = "Network Error: Unable to reach the server. Please check your connection.";
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        errorMessage = err.message;
+      }
+
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -98,8 +121,8 @@ export default function Login() {
                 key={r}
                 onClick={() => setRole(r)}
                 className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 capitalize flex items-center justify-center gap-2 ${role === r
-                    ? `bg-slate-800 text-white shadow-xl border border-slate-700/50`
-                    : "text-slate-500 hover:text-slate-300"
+                  ? `bg-slate-800 text-white shadow-xl border border-slate-700/50`
+                  : "text-slate-500 hover:text-slate-300"
                   }`}
                 aria-pressed={role === r}
               >

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import API from "../api";
 
 export default function IndustryProfile() {
   const [companyName, setCompanyName] = useState("");
@@ -9,12 +9,9 @@ export default function IndustryProfile() {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    await axios.post(
-      "http://localhost:5000/api/industry/profile",
-      { companyName, domain, description },
-      {
-        headers: { Authorization: `Bearer ${token}` }
-      }
+    await API.post(
+      "/industry/profile",
+      { companyName, domain, description }
     );
     alert("Industry Profile Saved!");
   };
