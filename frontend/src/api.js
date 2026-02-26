@@ -11,3 +11,5 @@ API.interceptors.request.use((req) => {
 });
 
 export default API;
+
+console.log(import.meta.env.VITE_API_URL);
