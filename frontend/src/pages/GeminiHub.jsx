@@ -107,7 +107,7 @@ export default function GeminiHub() {
     const runCodeTest = (studentCode, testCases) => {
         try {
             const fn = new Function(`return ${studentCode}`)();
-            return testCases.every(tc => {
+            return (testCases || []).every(tc => {
                 const result = fn(...tc.input);
                 return JSON.stringify(result) === JSON.stringify(tc.expectedOutput);
             });
@@ -312,7 +312,7 @@ export default function GeminiHub() {
                                                         />
                                                     </div>
                                                     <div className="flex justify-between items-center text-[10px] text-slate-500 font-mono">
-                                                        <span>Output Type: {q.testCases[0]?.expectedOutput?.constructor?.name || 'Any'}</span>
+                                                        <span>Output Type: {q.testCases?.[0]?.expectedOutput?.constructor?.name || 'Any'}</span>
                                                         <span className="italic">Passes hidden test cases automatically on submit</span>
                                                     </div>
                                                 </div>
